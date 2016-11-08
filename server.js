@@ -26,36 +26,28 @@ wsServer.on('connect', function (connection) {
     console.log('WebSocket Client Connected');
     try {
         conn.push(connection);
-        connection.on('message', function (mg) {
+        connection.on('message', function (req) {
 
-            if (mg.utf8Data.substring(0, 3) == "db:") {
+            var request = JSON.parse(req.utf8Data);
+            console.log("Request Type: " + request.RequestType);
+            if (request.RequestType == "db") {
 
-
-                var requestConfig = {
-                    BaseModel: "AppLayout",
-                    Request: "Get",
-                    Params: [{ AppLayoutID : "1"}]
-                };
-
-
-                var uow = new UOW(function (args) {
+                new Controller({ UOW: new UOW(function (args) {
+                   console.log("Return: " + JSON.stringify("{\"ResultType\":\"" + args.ResultType + "\",\"Results\":\""+JSON.stringify(args.Results)+"\"}")); 
                     for (var c = 0; c < conn.length; c++) {
                         if (!conn[c].closed) {
-                            conn[c].sendUTF("{\"data\":[{\"machine\":\"drewd\",\"position\":\"1\"},{\"machine\":\"alien1\",\"position\":\"2\"}]}");
+                            conn[c].sendUTF("{\"ResultType\":\"" + args.ResultType + "\",\"Results\":"+JSON.stringify(args.Results)+"}");
                         } else {
                             conn.splice(c, 1);
                         }
                     }
-                });
-
-                var controller = new Controller({ UOW: uow, RequestConfig: requestConfig });
-
+                }), Request: request.Request });
 
             } else {
 
                 for (var c = 0; c < conn.length; c++) {
                     if (!conn[c].closed) {
-                        conn[c].sendUTF(mg.utf8Data);
+                        conn[c].sendUTF(req.utf8Data);
                     } else {
                         conn.splice(c, 1);
                     }

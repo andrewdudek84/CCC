@@ -1,10 +1,11 @@
 ﻿function AppLayoutController(args) {
     return {
        request: function (args){
-            if (args.RequestConfig.Request == "Get") {
-                args.UOW.AppLayoutRepository.Get(args.RequestConfig.Params[0].AppLayoutID);
+            console.log("AppLayoutController Method: " + args.Request.Method);
+            if (args.Request.Method == "Get") {
+                args.UOW.AppLayoutRepository.Get(args.Request.Params[0].AppLayoutID);
             }
-            else if (args.RequestConfig.Request == "ListAll") {
+            else if (args.Request.Method == "ListAll") {
                 args.UOW.AppLayoutRepository.ListAll();
             }
         }   

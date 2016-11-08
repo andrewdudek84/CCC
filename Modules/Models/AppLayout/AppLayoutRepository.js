@@ -25,7 +25,7 @@ function AppLayoutRepository(callback) {
             self.select({
                 Query: "SELECT * FROM AppLayouts where AppLayoutID = " + appLayoutID + ";", Callback: function (args) {
                     var appLayouts = self.ConvertResult(args.Results);
-                    return callback({ Errors: args.Errors, AppLayouts: appLayouts });
+                    return callback({ Errors: args.Errors,ResultType:"AppLayouts",Results: JSON.stringify(appLayouts) });
                 }
             });
         },
@@ -33,7 +33,7 @@ function AppLayoutRepository(callback) {
             self.select({
                 Query: "SELECT * FROM AppLayouts;", Callback: function (args) {
                     var appLayouts = self.ConvertResult(args.Results);
-                    return callback({ Errors: args.Errors, AppLayouts: appLayouts });
+                    return callback({ Errors: args.Errors,ResultType:"AppLayouts",Results: JSON.stringify(appLayouts) });
                 }
             });
         }

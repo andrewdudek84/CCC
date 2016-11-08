@@ -2,7 +2,8 @@
 
 function Controller(args){
     var controller;
-    if (args.RequestConfig.BaseModel == "AppLayout") {
+    console.log("Controller: " + args.Request.BaseModel);
+    if (args.Request.BaseModel == "AppLayout") {
         controller = new AppLayoutController();
     }
 

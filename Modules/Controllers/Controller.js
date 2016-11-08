@@ -1,10 +1,17 @@
 ﻿var AppLayoutController = require('./AppLayout/AppLayoutController');
+var PlayerController = require('./Player/PlayerController');
 
 function Controller(args){
     var controller;
     console.log("Controller: " + args.Request.BaseModel);
-    if (args.Request.BaseModel == "AppLayout") {
-        controller = new AppLayoutController();
+
+    switch(args.Request.BaseModel){
+        case "AppLayout":
+            controller = new AppLayoutController();
+            break;
+        case "Player":
+            controller = new PlayerController();
+            break;
     }
 
     if (controller) {

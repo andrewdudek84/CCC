@@ -1,6 +1,6 @@
 var http = require('http'),
 WebSocketServer = require('websocket').server,
-port = process.env.port || 80,
+port = process.env.port || 3000,
 conn = [],
 UOW = require('./Modules/Shared/UOW'),
 Controller = require('./Modules/Controllers/Controller');

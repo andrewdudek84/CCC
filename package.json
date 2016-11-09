@@ -5,7 +5,7 @@
      "websocket": "1.0.23",
      "socket.io":"1.4.8",
      "express":"4.14.0",
-     "tedious":"3.9.3"
+     "tedious":"1.14.0"
    },
    "engines":{"node":"6.2.2"}
 }

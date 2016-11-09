@@ -28,51 +28,30 @@ wss.on('connection', function connection(ws) {
             console.log("Request Type: " + request.RequestType);
            
 
-            if (request.RequestType == "db") {
-
-                new Controller({ UOW: new UOW(function (args) {
+            switch(request.RequestType){
+                case "db":
+                   new Controller({ UOW: new UOW(function (args) {
                 
-                console.log("Return: " + JSON.stringify("{\"ResultType\":\"" + args.ResultType + "\",\"Results\":\""+JSON.stringify(args.Results)+"\"}")); 
+                        console.log("Return: " + JSON.stringify("{\"ResultType\":\"" + args.ResultType + "\",\"Results\":\""+JSON.stringify(args.Results)+"\"}")); 
 
-                 var rtnMessage = "{\"ResultType\":\"" + args.ResultType + "\",\"Results\":"+JSON.stringify(args.Results)+"}";
-                 console.log("Broadcast: " + request.Broadcast);
+                        var rtnMessage = "{\"ResultType\":\"" + args.ResultType + "\",\"Results\":"+JSON.stringify(args.Results)+"}";
+                   
+                        sendMessage(rtnMessage,request.Broadcast === "all",request.Broadcast);
                  
-                 if( request.Broadcast == "all"){
-                    for (var c = 0; c < conn.length; c++) {
-                        if (!conn[c].closed) {
-                            conn[c].send(rtnMessage);
-                        } else {
-                            conn.splice(c, 1);
-                        }
-                    }
-                 }else{
-                     for (var c = 0; c < conn.length; c++) {
-                        if (!conn[c].closed) {
-                            if(conn[c].PlayerID === request.Broadcast){
-                                conn[c].send(rtnMessage);
-                            }
-                        } else {
-                            conn.splice(c, 1);
-                        }
-                    }
-                      
-                 }
-                }), Request: request.Request });
-
-            } else {
-
-                for (var c = 0; c < conn.length; c++) {
-                    if (!conn[c].closed) {
-                        conn[c].send(message);
-                    } else {
-                        conn.splice(c, 1);
-                    }
-                }
+                    }), Request: request.Request });
+                    break;
+                case "event":
+                    sendMessage(rtnMessage,request.Broadcast === "all",request.Broadcast);
+                    break;
+                
             }
+
+       
         });
     } catch (e) {
         console.log(e.message);
     }
+
   // you might use location.query.access_token to authenticate or share sessions
   // or ws.upgradeReq.headers.cookie (see http://stackoverflow.com/a/16395220/151312)
 
@@ -82,8 +61,25 @@ wss.on('connection', function connection(ws) {
 
 });
 
-
-
 server.on('request', app);
 server.listen(port, function () { console.log('Listening on ' + server.address().port) });
 
+
+function sendMessage(message,broadcast,to){
+    for (var c = 0; c < conn.length; c++) {
+        if (!conn[c].closed) {
+            if(broadcast){
+                console.log("Broadcast: all");
+                conn[c].send(message);
+            }else{
+                if(conn[c].PlayerID === to){
+                    console.log("Broadcast: " + to);
+                    conn[c].send(message);
+                    break;
+                }
+            }       
+        } else {
+            conn.splice(c, 1);
+        }
+    }
+}

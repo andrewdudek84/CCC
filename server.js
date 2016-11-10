@@ -38,7 +38,7 @@ wss.on('connection', function connection(ws) {
                    
                         sendMessage(rtnMessage,request.Broadcast === "all",request.Broadcast);
                  
-                    }), Request: request.Request });
+                    }), Request: request.NodeEventRequests[0] });
                     break;
                 case "event":
                     sendMessage(rtnMessage,request.Broadcast === "all",request.Broadcast);

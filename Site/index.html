@@ -1,27 +1,37 @@
 <!DOCTYPE html>
 <html>
+
     <head>
-        <title></title>
-	    <meta charset="utf-8" />
-        <script src="scripts/jquery.js"></script>
+        <title>Command and Control Center - Test Portal</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <!-- Bootstrap -->
+        <link href="bootstrap/css/bootstrap.min.css" rel="stylesheet" media="screen">
+            <script src="scripts/jquery.js"></script>
+
+            
     </head>
    
  <body>
-    <h1>WebSocket with UNITY</h1>
+    <h1>Command and Control Center - Test Portal</h1>
 
-     <div id="info">
+    <div id="info" class="container">
         <p>
             <strong>Status: </strong><span id="connectionstatus">Disconnected</span>
         </p>
+        <p id="infodiv"></p>
     </div>
-
-    <div id="controls">
-        <label>Player Name</label>
-        <input type="text" id="playerName" value="" /><br>
+  <div class="container">
+      <form class="form-signin">
+         <label>Player Name</label>
+        <input type="text" class="input-block-level" id="playerName" value="THEDREWMACHINE" /><br>
         <label>Scene Name</label>
-        <input type="text" id="sceneName" value="" />
-        <button type="button" id="sendbutton">Send my message to the server</button>
-    </div>
+        <input type="text" class="input-block-level" id="sceneName" value="Square" />
+        <button id="sendbutton" type="button" class="btn btn-large btn-primary" >Send</button>
+      </form>
+
+    </div> <!-- /container -->
+
+     
    
 
 <div style="display:none">
@@ -33,7 +43,7 @@
     <button type="button" id="pause">Pause</button>
     <button type="button" id="reset">Reset</button>
      <br /><br />
-     <br /><br />
+
 
     <div id="dvImportSegments" class="fileupload ">
             <fieldset>
@@ -51,15 +61,10 @@ if (!window.WebSocket) {
     alert("Your browser does not support the WebSocket API!");
 } else {
 
-
-
-document.getElementById("sendbutton").onclick = function(){
-	sendMessage();
-}
-
     //Set the websocket server URL
     var websocketurl = "wss://tmgcccnodeserver.azurewebsites.net/HTML5SITE";
-
+    //var websocketurl = "ws://localhost:3000/HTMLSSITE"
+   
     //get status element
     var connstatus = document.getElementById("connectionstatus");
 
@@ -87,22 +92,32 @@ document.getElementById("sendbutton").onclick = function(){
     };
 }
 
-//function to send a message to the websocket server
 
 function sendMessage() {
+
+
 
     if (socket) {
 
         var playerName = document.getElementById("playerName").value;
         var sceneName = document.getElementById("sceneName").value;
 
+        var request = {
+            "SendTo":playerName,
+            "RequestType":"event",
+            "ResultType" : "ChangeSceneEvent",
+            "Results":sceneName
+            };
+            
+
         if (playerName !== "") {
-           socket.send(playerName +":"+ sceneName);
-           infodiv.innerHTML += "<p>Sent message to server: '" + playerName + ":"+sceneName+"'</p>";
+           socket.send(JSON.stringify(request));
+           infodiv.innerHTML += "<p>Sent message to server: '" + JSON.stringify(request)+"'</p>";
         } else {
             alert("You must enter a Player Name!");
         }
     }
+
 }
 
 function gotoScene(scene) {
@@ -119,6 +134,11 @@ function closeConnection() {
 
 
 $(document).ready(function () {
+
+$('#sendbutton').click(function () {
+ sendMessage();
+});
+
 
     // The event listener for the file upload
     document.getElementById('txtFileUpload').addEventListener('change', upload, false);
@@ -159,6 +179,39 @@ $(document).ready(function () {
 
 
 
+<style type="text/css">
+      body {
+        padding-top: 40px;
+        padding-bottom: 40px;
+        background-color: #f5f5f5;
+      }
+
+      .form-signin {
+        max-width: 300px;
+        padding: 19px 29px 29px;
+        margin: 0 auto 20px;
+        background-color: #fff;
+        border: 1px solid #e5e5e5;
+        -webkit-border-radius: 5px;
+           -moz-border-radius: 5px;
+                border-radius: 5px;
+        -webkit-box-shadow: 0 1px 2px rgba(0,0,0,.05);
+           -moz-box-shadow: 0 1px 2px rgba(0,0,0,.05);
+                box-shadow: 0 1px 2px rgba(0,0,0,.05);
+      }
+      .form-signin .form-signin-heading,
+      .form-signin .checkbox {
+        margin-bottom: 10px;
+      }
+      .form-signin input[type="text"],
+      .form-signin input[type="password"] {
+        font-size: 16px;
+        height: auto;
+        margin-bottom: 15px;
+        padding: 7px 9px;
+      }
+
+    </style>
 </body>
 </html>
 

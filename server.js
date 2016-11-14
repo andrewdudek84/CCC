@@ -34,19 +34,16 @@ wss.on('connection', function connection(ws) {
             switch(request.RequestType){
                 case "db":
                    new Controller({ UOW: new UOW(function (args) {
-                
-                        console.log("Return: " + JSON.stringify("{\"ResultType\":\"" + args.ResultType + "\",\"Results\":\""+JSON.stringify(args.Results)+"\"}")); 
-
                         var rtnMessage = "{\"ResultType\":\"" + args.ResultType + "\",\"Results\":"+JSON.stringify(args.Results)+"}";
-                   
+                        console.log("db Return: " + rtnMessage); 
                         sendMessage(rtnMessage,request.SendTo);
-                 
                     }), Request: request.NodeEventRequests[0] });
                     break;
                 case "event":
+                    console.log("event Return: " + rtnMessage); 
+                    var rtnMessage = JSON.stringify("{\"ResultType\":\"" + args.ResultType + "\",\"Results\":\""+JSON.stringify(args.Results)+"\"}");
                     sendMessage(rtnMessage,request.SendTo);
                     break;
-                
             }
 
        

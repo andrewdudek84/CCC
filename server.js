@@ -41,7 +41,7 @@ wss.on('connection', function connection(ws) {
                     break;
                 case "event":
                     console.log("event Return: " + rtnMessage); 
-                    var rtnMessage = JSON.stringify("{\"ResultType\":\"" + request.ResultType + "\",\"Results\":\""+request.Results+"\"}");
+                    var rtnMessage = "{\"ResultType\":\"" + request.ResultType + "\",\"Results\":\""+request.Results+"\"}";
                     sendMessage(rtnMessage,request.SendTo);
                     break;
             }

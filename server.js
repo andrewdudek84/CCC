@@ -39,12 +39,12 @@ wss.on('connection', function connection(ws) {
 
                         var rtnMessage = "{\"ResultType\":\"" + args.ResultType + "\",\"Results\":"+JSON.stringify(args.Results)+"}";
                    
-                        sendMessage(rtnMessage,request.Broadcast === "all",request.Broadcast);
+                        sendMessage(rtnMessage,request.SendTo);
                  
                     }), Request: request.NodeEventRequests[0] });
                     break;
                 case "event":
-                    sendMessage(rtnMessage,request.Broadcast === "all",request.Broadcast);
+                    sendMessage(rtnMessage,request.SendTo);
                     break;
                 
             }
@@ -78,15 +78,15 @@ function removeDuplicatePlayers(playerID){
     }
 }
 
-function sendMessage(message,broadcast,to){
+function sendMessage(message,sendTo){
     for (var c = 0; c < conn.length; c++) {
         if (conn[c].readyState == conn[c].OPEN) {
-            if(broadcast){
+            if(sendTo === "all"){
                 console.log("Broadcast: all");
                 conn[c].send(message);
             }else{
-                if(conn[c].PlayerID === to){
-                    console.log("Broadcast: " + to);
+                if(conn[c].PlayerID === sendTo){
+                    console.log("Broadcast: " +sendTo);
                     conn[c].send(message);
                     break;
                 }

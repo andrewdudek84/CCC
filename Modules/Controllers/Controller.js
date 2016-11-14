@@ -3,6 +3,8 @@ var PlayerController = require('./Player/PlayerController');
 
 function Controller(args){
     var controller;
+
+    console.log(JSON.stringify(args));
     console.log("Controller: " + args.Request.BaseModel);
 
     switch(args.Request.BaseModel){

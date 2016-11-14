@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html>
+
+    <head>
+        <title>Command and Control Center - Test Portal</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <!-- Bootstrap -->
+        <link href="bootstrap/css/bootstrap.min.css" rel="stylesheet" media="screen">
+            <script src="scripts/jquery.js"></script>
+
+            
+    </head>
+   
+ <body>
+    <h1>Command and Control Center - Test Portal</h1>
+
+    <div id="info" class="container">
+        <p>
+            <strong>Status: </strong><span id="connectionstatus">Disconnected</span>
+        </p>
+        <p id="infodiv"></p>
+    </div>
+  <div class="container">
+      <form class="form-signin">
+         <label>Player Name</label>
+        <input type="text" class="input-block-level" id="playerName" value="THEDREWMACHINE" /><br>
+        <label>Scene Name</label>
+        <input type="text" class="input-block-level" id="sceneName" value="Square" />
+        <button id="sendbutton" type="button" class="btn btn-large btn-primary" >Send</button>
+      </form>
+
+    </div> <!-- /container -->
+
+     
+   
+
+<div style="display:none">
+
+    <button type="button" id="goto1">Goto Scene 1</button>
+    <button type="button" id="goto2">Goto Scene 2</button>
+    <button type="button" id="goto3">Goto Scene 3</button>
+    <button type="button" id="play">Play</button>
+    <button type="button" id="pause">Pause</button>
+    <button type="button" id="reset">Reset</button>
+     <br /><br />
+
+
+    <div id="dvImportSegments" class="fileupload ">
+            <fieldset>
+                    <legend>Upload your CSV File</legend>
+                        <input type="file" name="File Upload" id="txtFileUpload" accept=".csv" />
+           
+        </fieldset>
+       <a href="test.csv"  target="_blank">Download test CSV File</a>
+    </div>
+</div>
+    <script>
+        //First test for the browsers support for WebSockets
+if (!window.WebSocket) {
+    //If the user's browser does not support WebSockets, give an alert message
+    alert("Your browser does not support the WebSocket API!");
+} else {
+
+    //Set the websocket server URL
+    var websocketurl = "wss://tmgcccnodeserver.azurewebsites.net/HTML5SITE";
+    //var websocketurl = "ws://localhost:3000/HTMLSSITE"
+   
+    //get status element
+    var connstatus = document.getElementById("connectionstatus");
+
+    //get info div element
+    var infodiv = document.getElementById("info");
+
+    //Create the WebSocket object (web socket echo test service provided by websocket.org)
+    socket = new WebSocket(websocketurl);
+
+    //This function is called when the websocket connection is opened
+    socket.onopen = function() {
+        connstatus.innerHTML = "Connected!";
+        infodiv.innerHTML += "<p>Connected to websocket server at: " + websocketurl + "</p>";
+    };
+
+    //This function is called when the websocket connection is closed
+    socket.onclose = function() {
+        connstatus.innerHTML = "Disconnected";
+        infodiv.innerHTML += "<p>Disconnected from the websocket server at: " + websocketurl + "</p>";
+    };
+
+    //This function is called when the websocket receives a message. It is passed the message object as its only parameter
+    socket.onmessage = function(message) {
+        infodiv.innerHTML += "<p>Message received from server: '" + message.data + "'</p>";
+    };
+}
+
+
+function sendMessage() {
+
+
+
+    if (socket) {
+
+        var playerName = document.getElementById("playerName").value;
+        var sceneName = document.getElementById("sceneName").value;
+
+        var request = {
+            "SendTo":playerName,
+            "RequestType":"event",
+            "ResultType" : "ChangeSceneEvent",
+            "Results":sceneName
+            };
+            
+
+        if (playerName !== "") {
+           socket.send(JSON.stringify(request));
+           infodiv.innerHTML += "<p>Sent message to server: '" + JSON.stringify(request)+"'</p>";
+        } else {
+            alert("You must enter a Player Name!");
+        }
+    }
+
+}
+
+function gotoScene(scene) {
+    socket.send("scene:" + scene);
+};
+
+function closeConnection() {
+    //check to ensure that the socket variable is present i.e. the browser support tests passed
+    if (socket) {
+        socket.close();
+    }
+}
+
+
+
+$(document).ready(function () {
+
+$('#sendbutton').click(function () {
+ sendMessage();
+});
+
+
+    // The event listener for the file upload
+    document.getElementById('txtFileUpload').addEventListener('change', upload, false);
+
+    // Method that checks that the browser supports the HTML5 File API
+    function browserSupportFileUpload() {
+        var isCompatible = false;
+        if (window.File && window.FileReader && window.FileList && window.Blob) {
+            isCompatible = true;
+        }
+        return isCompatible;
+    }
+
+    // Method that reads and processes the selected file
+    function upload(evt) {
+        if (!browserSupportFileUpload()) {
+            alert('The File APIs are not fully supported in this browser!');
+        } else {
+            var data = null;
+            var file = evt.target.files[0];
+            var reader = new FileReader();
+            reader.readAsText(file);
+            reader.onload = function (event) {
+                var csvData = event.target.result;
+                csvData = csvData.replace(/\r/g, "");
+                socket.send("data:" + csvData);
+                $("#txtFileUpload").val("");
+            };
+            reader.onerror = function () {
+                alert('Unable to read ' + file.fileName);
+            };
+        }
+    }
+});
+
+
+    </script>
+
+
+
+<style type="text/css">
+      body {
+        padding-top: 40px;
+        padding-bottom: 40px;
+        background-color: #f5f5f5;
+      }
+
+      .form-signin {
+        max-width: 300px;
+        padding: 19px 29px 29px;
+        margin: 0 auto 20px;
+        background-color: #fff;
+        border: 1px solid #e5e5e5;
+        -webkit-border-radius: 5px;
+           -moz-border-radius: 5px;
+                border-radius: 5px;
+        -webkit-box-shadow: 0 1px 2px rgba(0,0,0,.05);
+           -moz-box-shadow: 0 1px 2px rgba(0,0,0,.05);
+                box-shadow: 0 1px 2px rgba(0,0,0,.05);
+      }
+      .form-signin .form-signin-heading,
+      .form-signin .checkbox {
+        margin-bottom: 10px;
+      }
+      .form-signin input[type="text"],
+      .form-signin input[type="password"] {
+        font-size: 16px;
+        height: auto;
+        margin-bottom: 15px;
+        padding: 7px 9px;
+      }
+
+    </style>
+</body>
+</html>
+

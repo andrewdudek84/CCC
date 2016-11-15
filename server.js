@@ -7,24 +7,24 @@ var server = require('http').createServer()
   , port = process.env.port || 3000
   , UOW = require('./Modules/Shared/UOW')
   , Controller = require('./Modules/Controllers/Controller')
-  , conn =[];
+  , conns =[];
 
 app.use(function (req, res) {
   res.send({ msg: "hello" });
 });
 
-wss.on('connection', function connection(ws) {
+wss.on('connection', function connection(conn) {
     
-   var playerID = ws.upgradeReq.url.substring(1,ws.upgradeReq.url.length);
+   var playerID = conn.upgradeReq.url.substring(1,conn.upgradeReq.url.length);
 
    removeDuplicatePlayers(playerID);
 
-   console.log('WebSocket Client Connected ('+ conn.length+'): ' + playerID);
+   console.log('WebSocket Client Connected ('+ conns.length+'): ' + playerID);
     try {
-        ws["PlayerID"] = playerID;
-        conn.push(ws);
+        conn["PlayerID"] = playerID;
+        conns.push(conn);
 
-        ws.on('message', function incoming(message) {
+        conn.on('message', function incoming(message) {
 
             var request = JSON.parse(message);
 
@@ -40,8 +40,9 @@ wss.on('connection', function connection(ws) {
                     }), Request: request.NodeEventRequests[0] });
                     break;
                 case "event":
-                    console.log("event Return: " + rtnMessage); 
-                    var rtnMessage = "{\"ResultType\":\"" + request.ResultType + "\",\"Results\":\""+request.Results+"\"}";
+                   
+                    var rtnMessage = "{\"ResultType\":\"" + request.ResultType + "\",\"Results\":"+JSON.stringify(request.Results)+"}";
+                     console.log("event Return: " + rtnMessage); 
                     sendMessage(rtnMessage,request.SendTo);
                     break;
             }
@@ -53,9 +54,9 @@ wss.on('connection', function connection(ws) {
     }
 
   // you might use location.query.access_token to authenticate or share sessions
-  // or ws.upgradeReq.headers.cookie (see http://stackoverflow.com/a/16395220/151312)
+  // or conn.upgradeReq.headers.cookie (see http://stackoverflow.com/a/16395220/151312)
 
-  ws.on('message', function incoming(message) {
+  conn.on('message', function incoming(message) {
     console.log('received: %s', message);
   });
 
@@ -68,28 +69,28 @@ server.listen(port, function () { console.log('Listening on ' + server.address()
 
 // If a Player gets discconected there old connection is still in the list, we need to remove the old connection.
 function removeDuplicatePlayers(playerID){
-    for (var c = 0; c < conn.length; c++) {
-        if (conn[c].PlayerID == playerID) {
-            conn.splice(c, 1);
+    for (var c = 0; c < conns.length; c++) {
+        if (conns[c].PlayerID == playerID) {
+            conns.splice(c, 1);
         }
     }
 }
 
 function sendMessage(message,sendTo){
-    for (var c = 0; c < conn.length; c++) {
-        if (conn[c].readyState == conn[c].OPEN) {
+    for (var c = 0; c < conns.length; c++) {
+        if (conns[c].readyState == conns[c].OPEN) {
             if(sendTo === "all"){
                 console.log("Broadcast: all");
-                conn[c].send(message);
+                conns[c].send(message);
             }else{
-                if(conn[c].PlayerID === sendTo){
+                if(conns[c].PlayerID === sendTo){
                     console.log("Broadcast: " +sendTo);
-                    conn[c].send(message);
+                    conns[c].send(message);
                     break;
                 }
             }       
         } else {
-            conn.splice(c, 1);
+            conns.splice(c, 1);
         }
     }
 }

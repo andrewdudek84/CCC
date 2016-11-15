@@ -27,6 +27,18 @@
         <label>Scene Name</label>
         <input type="text" class="input-block-level" id="sceneName" value="Square" />
         <button id="sendbutton" type="button" class="btn btn-large btn-primary" >Send</button>
+
+        
+      </form>
+
+    </div> <!-- /container -->
+
+     <div class="container">
+      <form class="form-signin">
+       
+          <button id="startDatabutton" type="button" class="btn btn-large" >Start Data</button> &nbsp;
+
+            <button id="stopDatabutton" type="button" class="btn btn-large" >Stop Data</button>
       </form>
 
     </div> <!-- /container -->
@@ -62,7 +74,7 @@ if (!window.WebSocket) {
 } else {
 
     //Set the websocket server URL
-   // var websocketurl = "wss://tmgcccnodeserver.azurewebsites.net/HTML5SITE";
+    //var websocketurl = "wss://tmgcccnodeserver.azurewebsites.net/HTML5SITE";
     var websocketurl = "ws://localhost:3000/HTMLSSITE"
    
     //get status element
@@ -93,6 +105,7 @@ if (!window.WebSocket) {
 }
 
 
+
 function sendMessage() {
 
 
@@ -112,7 +125,7 @@ function sendMessage() {
 
         if (playerName !== "") {
            socket.send(JSON.stringify(request));
-           infodiv.innerHTML += "<p>Sent message to server: '" + JSON.stringify(request)+"'</p>";
+           infodiv.innerHTML = "<p>Sent message to server: '" + JSON.stringify(request)+"'</p>";
         } else {
             alert("You must enter a Player Name!");
         }
@@ -132,6 +145,28 @@ function closeConnection() {
 }
 
 
+var timer= null;
+function sendDataTest(){
+     var playerName = document.getElementById("playerName").value;
+      timer = setInterval(function(){ 
+        var request = {
+            "SendTo":playerName,
+            "RequestType":"event",
+            "ResultType" : "EngineData",
+            "Results":"{\"Speed\":"+ Math.floor((Math.random() * 100) + 1) +",\"Torque\":"+ Math.floor((Math.random() * 100) + 1) +",\"Vibration\":"+ Math.floor((Math.random() * 100) + 1) +",\"Warning\":\"red\"}"
+            };
+             infodiv.innerHTML = "<p>Sent message to server: '" + JSON.stringify(request)+"'</p>";
+           socket.send(JSON.stringify(request));
+      },500);
+}
+
+function stopDataTest(){
+    clearInterval(timer);
+
+    timer = null;
+}
+
+
 
 $(document).ready(function () {
 
@@ -139,6 +174,15 @@ $('#sendbutton').click(function () {
  sendMessage();
 });
 
+$('#startDatabutton').click(function () {
+ sendDataTest();
+});
+
+$('#stopDatabutton').click(function () {
+ stopDataTest();
+});
+
+ 
 
     // The event listener for the file upload
     document.getElementById('txtFileUpload').addEventListener('change', upload, false);

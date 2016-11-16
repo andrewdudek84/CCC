@@ -15,16 +15,11 @@ app.use(function (req, res) {
 
 wss.on('connection', function connection(conn) {
     
-    try{
-        var playerID = conn.upgradeReq.url.substring(1,conn.upgradeReq.url.length);
-    } catch(error){
-        break;
-         console.log('connection playerID error: ' + error.message);
-    }
-
+    console.log('WebSocket Client Connected ('+ conns.length+'): Getting Player ID');
+   var playerID = conn.upgradeReq.url.substring(1,conn.upgradeReq.url.length);
    removeDuplicatePlayers(playerID);
 
-   console.log('WebSocket Client Connected ('+ conns.length+'): ' + playerID);
+   console.log('PlayerID: ' + playerID);
    try {
         conn["PlayerID"] = playerID;
         conns.push(conn);

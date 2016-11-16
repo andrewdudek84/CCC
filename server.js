@@ -15,12 +15,17 @@ app.use(function (req, res) {
 
 wss.on('connection', function connection(conn) {
     
-   var playerID = conn.upgradeReq.url.substring(1,conn.upgradeReq.url.length);
+    try{
+        var playerID = conn.upgradeReq.url.substring(1,conn.upgradeReq.url.length);
+    } catch(error){
+        break;
+         console.log('connection playerID error: ' + error.message);
+    }
 
    removeDuplicatePlayers(playerID);
 
    console.log('WebSocket Client Connected ('+ conns.length+'): ' + playerID);
-    try {
+   try {
         conn["PlayerID"] = playerID;
         conns.push(conn);
 
@@ -69,10 +74,14 @@ server.listen(port, function () { console.log('Listening on ' + server.address()
 
 // If a Player gets discconected there old connection is still in the list, we need to remove the old connection.
 function removeDuplicatePlayers(playerID){
-    for (var c = 0; c < conns.length; c++) {
-        if (conns[c].PlayerID == playerID) {
-            conns.splice(c, 1);
+    try{
+        for (var c = 0; c < conns.length; c++) {
+            if (conns[c].PlayerID == playerID) {
+                conns.splice(c, 1);
+            }
         }
+    }catch(error){
+         console.log('removeDuplicatePlayers error: ' + error.message);
     }
 }
 

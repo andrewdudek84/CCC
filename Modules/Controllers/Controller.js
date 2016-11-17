@@ -1,4 +1,5 @@
-﻿var AppLayoutController = require('./AppLayout/AppLayoutController');
+﻿var AppSessionController = require('./AppSession/AppSessionController');
+var AppLayoutController = require('./AppLayout/AppLayoutController');
 var PlayerController = require('./Player/PlayerController');
 
 function Controller(args){
@@ -8,6 +9,9 @@ function Controller(args){
     console.log("Controller: " + args.Request.BaseModel);
 
     switch(args.Request.BaseModel){
+         case "AppSession":
+            controller = new AppSessionController();
+            break;
         case "AppLayout":
             controller = new AppLayoutController();
             break;

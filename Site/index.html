@@ -43,6 +43,18 @@
 
     </div> <!-- /container -->
 
+
+    <div class="container">
+      <form class="form-signin">
+       
+          <button id="sendHistoricalButton" type="button" class="btn btn-large" >Send Historical</button> &nbsp;
+
+            <button id="startHistoricalButton" type="button" class="btn btn-large" >Start </button>
+            <button id="stopHistoricalButton" type="button" class="btn btn-large" >Stop </button>
+      </form>
+
+    </div> <!-- /container -->
+
      
    
 
@@ -74,8 +86,8 @@ if (!window.WebSocket) {
 } else {
 
     //Set the websocket server URL
-    var websocketurl = "wss://tmgcccnodeserver.azurewebsites.net/HTML5SITE";
-    //var websocketurl = "ws://localhost:3000/HTMLSSITE"
+    //var websocketurl = "wss://tmgcccnodeserver.azurewebsites.net/HTML5SITE";
+    var websocketurl = "ws://localhost:3000/HTMLSSITE"
    
     //get status element
     var connstatus = document.getElementById("connectionstatus");
@@ -104,12 +116,7 @@ if (!window.WebSocket) {
     };
 }
 
-
-
 function sendMessage() {
-
-
-
     if (socket) {
 
         var playerName = document.getElementById("playerName").value;
@@ -144,8 +151,7 @@ function closeConnection() {
     }
 }
 
-//azure site log tail
-
+// azure site log tail
 var timer= null;
 function sendDataTest(){
      var playerName = document.getElementById("playerName").value;
@@ -167,8 +173,6 @@ function stopDataTest(){
     timer = null;
 }
 
-
-
 $(document).ready(function () {
 
 $('#sendbutton').click(function () {
@@ -183,8 +187,55 @@ $('#stopDatabutton').click(function () {
  stopDataTest();
 });
 
- 
 
+$('#sendHistoricalButton').click(function () {
+ sendHistorical();
+});
+
+$('#startHistoricalButton').click(function () {
+ startHistorical();
+});
+
+$('#stopHistoricalButton').click(function () {
+ stopHistorical();
+});
+
+function sendHistorical(){
+     var playerName = document.getElementById("playerName").value;
+    
+    var request = {
+        "SendTo":playerName,
+        "RequestType":"event",
+        "ResultType" : "HistoricalData",
+        "Results":"[{\"Speed\":"+ Math.floor((Math.random() * 100) + 1) +",\"Torque\":"+ Math.floor((Math.random() * 100) + 1) +",\"Vibration\":"+ Math.floor((Math.random() * 100) + 1) +",\"Warning\":\"red\"},{\"Speed\":"+ Math.floor((Math.random() * 100) + 1) +",\"Torque\":"+ Math.floor((Math.random() * 100) + 1) +",\"Vibration\":"+ Math.floor((Math.random() * 100) + 1) +",\"Warning\":\"red\"},{\"Speed\":"+ Math.floor((Math.random() * 100) + 1) +",\"Torque\":"+ Math.floor((Math.random() * 100) + 1) +",\"Vibration\":"+ Math.floor((Math.random() * 100) + 1) +",\"Warning\":\"red\"}]"
+        };
+        
+        infodiv.innerHTML = "<p>Sent message to server: '" + JSON.stringify(request)+"'</p>";
+        socket.send(JSON.stringify(request));
+}
+
+function startHistorical(){
+     var playerName = document.getElementById("playerName").value;
+    
+     timer2 = setInterval(function(){ 
+    var request = {
+        "SendTo":playerName,
+        "RequestType":"event",
+        "ResultType" : "HistoricalTick",
+        "Results":"1000"
+        };
+        infodiv.innerHTML = "<p>Sent message to server: '" + JSON.stringify(request)+"'</p>";
+        socket.send(JSON.stringify(request));
+    },1000);
+}
+
+var timer2= null;
+function stopHistorical(){
+    clearInterval(timer2);
+
+    timer2= null;
+}
+ 
     // The event listener for the file upload
     document.getElementById('txtFileUpload').addEventListener('change', upload, false);
 
@@ -232,7 +283,7 @@ $('#stopDatabutton').click(function () {
       }
 
       .form-signin {
-        max-width: 300px;
+        max-width: 400px;
         padding: 19px 29px 29px;
         margin: 0 auto 20px;
         background-color: #fff;
